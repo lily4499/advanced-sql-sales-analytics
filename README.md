@@ -217,12 +217,20 @@ SET order_month = MONTHNAME(order_date),
 #### A. Top 5 most profitable products (Window function):
 
 ```sql
-SELECT product_name, SUM(profit) AS total_profit,
-       RANK() OVER (ORDER BY SUM(profit) DESC) AS rank
-FROM orders
-GROUP BY product_name
-LIMIT 5;
+SELECT *
+FROM (
+    SELECT 
+        product_name,
+        SUM(profit) AS total_profit,
+        ROW_NUMBER() OVER (ORDER BY SUM(profit) DESC) AS row_num
+    FROM orders
+    GROUP BY product_name
+) AS ranked
+WHERE row_num <= 5;
+
 ```
+![image](https://github.com/user-attachments/assets/00894950-c888-41d4-bb40-f33b3cddd95c)
+
 
 #### B. Monthly trend of sales and profit (CTE):
 
@@ -237,6 +245,7 @@ SELECT * FROM monthly_sales ORDER BY order_year, FIELD(order_month,
     'January','February','March','April','May','June','July',
     'August','September','October','November','December');
 ```
+![image](https://github.com/user-attachments/assets/e56fd5d3-23fb-4481-b459-04813413d037)
 
 #### C. Customer segmentation:
 
@@ -252,6 +261,7 @@ SELECT customer_id, customer_name,
 FROM orders
 GROUP BY customer_id, customer_name;
 ```
+![image](https://github.com/user-attachments/assets/a2d64e12-9e65-447b-92be-e9d2365a4202)
 
 #### D. Detect loss-making products (subqueries):
 
@@ -261,6 +271,7 @@ FROM orders
 GROUP BY product_name, category
 HAVING total_profit < 0;
 ```
+![image](https://github.com/user-attachments/assets/bb29c05c-e3bc-4409-ab51-6479cfccf51a)
 
 ---
 
